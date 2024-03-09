@@ -11,8 +11,9 @@
     {
         static void Main(string[] args)
         {
-            var reader = new DataReader();
-            reader.ImportAndPrintData("dataa.csv");
+            var DATA_URL = "data.csv";
+            var reader = new DataReader(DATA_URL);
+
         }
     }
 }

@@ -2,68 +2,131 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
     using System.IO;
     using System.Linq;
-    using System.Threading.Tasks;
 
     public class DataReader
     {
-        IEnumerable<ImportedObject> ImportedObjects;
+        private List<ImportedObject> ImportedObjects;
 
-        public void ImportAndPrintData(string fileToImport, bool printData = true)
+        private List<string> ImportedDataLines;
+
+        private List<string> ImportDataColumns;
+
+        private Dictionary<string, int> ChildrenCountByParent;
+
+
+        private void readDataFromStream(string filePath)
         {
-            ImportedObjects = new List<ImportedObject>() { new ImportedObject() };
 
-            var streamReader = new StreamReader(fileToImport);
+            if (!File.Exists(filePath)) throw new FileNotFoundException($"File doesn't Exist: {filePath}");
 
-            var importedLines = new List<string>();
-            while (!streamReader.EndOfStream)
+            using (StreamReader streamReader = new StreamReader(filePath))
             {
-                var line = streamReader.ReadLine();
-                importedLines.Add(line);
-            }
 
-            for (int i = 0; i <= importedLines.Count; i++)
-            {
-                var importedLine = importedLines[i];
-                var values = importedLine.Split(';');
-                var importedObject = new ImportedObject();
-                importedObject.Type = values[0];
-                importedObject.Name = values[1];
-                importedObject.Schema = values[2];
-                importedObject.ParentName = values[3];
-                importedObject.ParentType = values[4];
-                importedObject.DataType = values[5];
-                importedObject.IsNullable = values[6];
-                ((List<ImportedObject>)ImportedObjects).Add(importedObject);
-            }
-
-            // clear and correct imported data
-            foreach (var importedObject in ImportedObjects)
-            {
-                importedObject.Type = importedObject.Type.Trim().Replace(" ", "").Replace(Environment.NewLine, "").ToUpper();
-                importedObject.Name = importedObject.Name.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-                importedObject.Schema = importedObject.Schema.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-                importedObject.ParentName = importedObject.ParentName.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-                importedObject.ParentType = importedObject.ParentType.Trim().Replace(" ", "").Replace(Environment.NewLine, "");
-            }
-
-            // assign number of children
-            for (int i = 0; i < ImportedObjects.Count(); i++)
-            {
-                var importedObject = ImportedObjects.ToArray()[i];
-                foreach (var impObj in ImportedObjects)
+                try
                 {
-                    if (impObj.ParentType == importedObject.Type)
+                    ImportedDataLines = new List<string>();
+
+                    while (!streamReader.EndOfStream)
+
                     {
-                        if (impObj.ParentName == importedObject.Name)
-                        {
-                            importedObject.NumberOfChildren = 1 + importedObject.NumberOfChildren;
-                        }
+                        var line = streamReader.ReadLine();
+                        ImportedDataLines.Add(line);
                     }
+
+
+                }
+                catch (IOException ex)
+                {
+                    throw new Exception($"An error occurred while reading the file: {ex.Message}");
+                }
+
+                catch (Exception ex)
+                {
+                    throw new Exception($"An unexpected error occurred: {ex.Message}");
+
+                }
+
+                ImportedDataLines = ImportedDataLines.Skip(0).Take(200).ToList();
+            }
+
+        }
+
+        private void readDataColumns()
+        {
+            ImportDataColumns = new List<string>(7);
+
+            var firstLine = ImportedDataLines[0];
+            var columns = firstLine.Split(';');
+
+            foreach (var column in columns)
+            {
+                if(!string.IsNullOrEmpty(column))
+                {
+                    ImportDataColumns.Add(column);
                 }
             }
+               
+        }
+        private void buildDataObjects()
+        {
+            ImportedObjects = new List<ImportedObject>();
+       
+            for (int i = 1; i < ImportedDataLines.Count; i++)
+            {
+                var importedLine = ImportedDataLines[i];
+
+                var rowValues = importedLine.Split(';').Where(line => !string.IsNullOrEmpty(line)).ToArray();
+
+
+                if (rowValues.Count() == ImportDataColumns.Count())
+                {
+                    var ImportedObject = new ImportedObject(rowValues);
+                    ImportedObjects.Add(ImportedObject);
+                } 
+            }
+        }
+
+        private void countTheChildren()
+        {
+
+            ChildrenCountByParent = new Dictionary<string, int>();
+
+            foreach (var obj in ImportedObjects)
+            {
+
+                var key = $"{obj.ParentType}-{obj.ParentName}";
+
+                if(ChildrenCountByParent.ContainsKey(key))
+                {
+                    ChildrenCountByParent[key] = ChildrenCountByParent[key] + 1;
+                    obj.NumberOfChildren += ChildrenCountByParent[key];
+                } else
+                {
+                    ChildrenCountByParent[key] = 1;
+                    obj.NumberOfChildren = 1;
+                }
+            }
+        }
+
+        public DataReader(string filePath)
+        {
+            this.readDataFromStream(filePath);
+            this.readDataColumns();
+            this.buildDataObjects();
+            this.countTheChildren();
+
+
+            foreach (var obj in ChildrenCountByParent)
+            {
+                Console.WriteLine(obj.ToString());
+            }
+
+
+        }
+
+       /* public void ImportAndPrintData(string fileToImport)
 
             foreach (var database in ImportedObjects)
             {
@@ -98,33 +161,7 @@
             }
 
             Console.ReadLine();
-        }
+        }*/
     }
 
-    class ImportedObject : ImportedObjectBaseClass
-    {
-        public string Name
-        {
-            get;
-            set;
-        }
-        public string Schema;
-
-        public string ParentName;
-        public string ParentType
-        {
-            get; set;
-        }
-
-        public string DataType { get; set; }
-        public string IsNullable { get; set; }
-
-        public double NumberOfChildren;
-    }
-
-    class ImportedObjectBaseClass
-    {
-        public string Name { get; set; }
-        public string Type { get; set; }
-    }
 }
