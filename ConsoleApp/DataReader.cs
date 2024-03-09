@@ -59,7 +59,7 @@
             return  line.Split(';').Where(c => !string.IsNullOrEmpty(c)).ToArray();
         }
 
-        private void readDataColumns()
+        private void readImportDataColumns()
         {
             ImportDataColumns = new List<string>(7);
 
@@ -134,8 +134,10 @@
         public DataReader(string filePath)
         {
             this.readDataFromStream(filePath);
-            this.readDataColumns();
+            this.readImportDataColumns();
+
             this.buildDataObjects();
+
             this.agregateTables();
             this.agregateColumns();
 
@@ -151,8 +153,6 @@
                 var column = obj.Value;
                             Console.WriteLine($"\t\tColumn '{column.Name}' with {column.DataType} data type {(column.IsNullable ? "accepts nulls" : "with no nulls")}");
                         }
-            
-
         }
     }
 
