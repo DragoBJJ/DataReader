@@ -17,7 +17,7 @@ namespace ConsoleApp.Interface
          string ParentName { get; set; }
          string ParentType { get; set; }
          string DataType { get; set; }
-         string IsNullable { get; set; }
+         bool IsNullable { get; set; }
          int NumberOfChildren {  get; set; }
     }
 }

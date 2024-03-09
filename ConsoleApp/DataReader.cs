@@ -2,18 +2,21 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Data.Common;
     using System.IO;
     using System.Linq;
+    using System.Reflection.Emit;
 
     public class DataReader
     {
+
         private List<ImportedObject> ImportedObjects;
 
         private List<string> ImportedDataLines;
-
         private List<string> ImportDataColumns;
 
-        private Dictionary<string, int> ChildrenCountByParent;
+        private Dictionary<string, ImportedObject> AgregatedTables;
+        private Dictionary<string, ImportedObject> AgregatedColumns;
 
 
         private void readDataFromStream(string filePath)
@@ -26,7 +29,7 @@
 
                 try
                 {
-                    ImportedDataLines = new List<string>();
+                     ImportedDataLines = new List<string>();
 
                     while (!streamReader.EndOfStream)
 
@@ -34,8 +37,6 @@
                         var line = streamReader.ReadLine();
                         ImportedDataLines.Add(line);
                     }
-
-
                 }
                 catch (IOException ex)
                 {
@@ -48,9 +49,14 @@
 
                 }
 
-                ImportedDataLines = ImportedDataLines.Skip(0).Take(200).ToList();
+     
             }
 
+        }
+
+        private string[] splitAndClearLine(string line)
+        {
+            return  line.Split(';').Where(c => !string.IsNullOrEmpty(c)).ToArray();
         }
 
         private void readDataColumns()
@@ -58,27 +64,23 @@
             ImportDataColumns = new List<string>(7);
 
             var firstLine = ImportedDataLines[0];
-            var columns = firstLine.Split(';');
+            var columns = splitAndClearLine(firstLine);
 
             foreach (var column in columns)
             {
-                if(!string.IsNullOrEmpty(column))
-                {
-                    ImportDataColumns.Add(column);
-                }
+                    ImportDataColumns.Add(column);      
             }
-               
+
         }
         private void buildDataObjects()
         {
             ImportedObjects = new List<ImportedObject>();
-       
+
             for (int i = 1; i < ImportedDataLines.Count; i++)
             {
                 var importedLine = ImportedDataLines[i];
 
-                var rowValues = importedLine.Split(';').Where(line => !string.IsNullOrEmpty(line)).ToArray();
-
+                var rowValues = splitAndClearLine(importedLine);
 
                 if (rowValues.Count() == ImportDataColumns.Count())
                 {
@@ -88,26 +90,45 @@
             }
         }
 
-        private void countTheChildren()
+        private void agregateTables()
         {
 
-            ChildrenCountByParent = new Dictionary<string, int>();
+            AgregatedTables = new Dictionary<string, ImportedObject>();
 
             foreach (var obj in ImportedObjects)
             {
 
                 var key = $"{obj.ParentType}-{obj.ParentName}";
+           
 
-                if(ChildrenCountByParent.ContainsKey(key))
+                if(AgregatedTables.ContainsKey(key))
                 {
-                    ChildrenCountByParent[key] = ChildrenCountByParent[key] + 1;
-                    obj.NumberOfChildren += ChildrenCountByParent[key];
+                    var oldObj = AgregatedTables[key];
+                    oldObj.NumberOfChildren++;
+
                 } else
                 {
-                    ChildrenCountByParent[key] = 1;
                     obj.NumberOfChildren = 1;
+                    AgregatedTables[key] = obj;
+                 
                 }
             }
+        }
+        private void agregateColumns()
+        {
+            AgregatedColumns = new Dictionary<string, ImportedObject>();
+
+            foreach (var obj in ImportedObjects)
+            {
+
+                var key = $"{obj.Type}-{obj.Name}";
+
+                if(!AgregatedColumns.ContainsKey(key))
+                {
+                    AgregatedColumns[key] = obj;    
+                }
+            }
+
         }
 
         public DataReader(string filePath)
@@ -115,53 +136,24 @@
             this.readDataFromStream(filePath);
             this.readDataColumns();
             this.buildDataObjects();
-            this.countTheChildren();
+            this.agregateTables();
+            this.agregateColumns();
 
 
-            foreach (var obj in ChildrenCountByParent)
+            foreach (var obj in AgregatedTables)
             {
-                Console.WriteLine(obj.ToString());
+                var table = obj.Value;
+                Console.WriteLine($"\tTable '{table.Schema}.{table.Name}' ({table.NumberOfChildren} columns)");
             }
-
+            Console.WriteLine($"---------------------------------------------------------------------------------------------------------------");
+            foreach (var obj in AgregatedColumns)
+            {
+                var column = obj.Value;
+                            Console.WriteLine($"\t\tColumn '{column.Name}' with {column.DataType} data type {(column.IsNullable ? "accepts nulls" : "with no nulls")}");
+                        }
+            
 
         }
-
-       /* public void ImportAndPrintData(string fileToImport)
-
-            foreach (var database in ImportedObjects)
-            {
-                if (database.Type == "DATABASE")
-                {
-                    Console.WriteLine($"Database '{database.Name}' ({database.NumberOfChildren} tables)");
-
-                    // print all database's tables
-                    foreach (var table in ImportedObjects)
-                    {
-                        if (table.ParentType.ToUpper() == database.Type)
-                        {
-                            if (table.ParentName == database.Name)
-                            {
-                                Console.WriteLine($"\tTable '{table.Schema}.{table.Name}' ({table.NumberOfChildren} columns)");
-
-                                // print all table's columns
-                                foreach (var column in ImportedObjects)
-                                {
-                                    if (column.ParentType.ToUpper() == table.Type)
-                                    {
-                                        if (column.ParentName == table.Name)
-                                        {
-                                            Console.WriteLine($"\t\tColumn '{column.Name}' with {column.DataType} data type {(column.IsNullable == "1" ? "accepts nulls" : "with no nulls")}");
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            Console.ReadLine();
-        }*/
     }
 
 }
