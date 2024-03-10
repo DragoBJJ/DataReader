@@ -1,5 +1,7 @@
 ### Code Review
 
+You can find the corrected code in this repository.
+
 ### Performance issues and design patterns
 - ImportAndPrintData - Function breaks the principle of single responsibility. i would separate the logic into separate functions first.
 - new ImportedObject() - I would enclose the logic of creating a new object and assigning values in a separate class.
