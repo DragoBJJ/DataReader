@@ -7,7 +7,7 @@ using ConsoleApp.Interface;
 
 namespace ConsoleApp
 {
-         public class ImportedObject : IDataSchema
+         public class BuilderObject : IBuilderSchema
     {
         public string Name { get; set; }
         public string Schema { get; set; }
@@ -18,7 +18,7 @@ namespace ConsoleApp
         public int NumberOfChildren { get; set; }
         public string Type { get; set; }
 
-        public ImportedObject(string[] values)
+        public BuilderObject(string[] values)
         {
             try
                 {

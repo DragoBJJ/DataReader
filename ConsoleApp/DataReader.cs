@@ -5,91 +5,34 @@
     using System.IO;
     using System.Linq;
     using ConsoleApp.Enum;
+    using ConsoleApp.Interface;
 
-    public class DataReader
+    public class DataReader: IDataReader
     {
 
-        private List<ImportedObject> ImportedObjects;
+        private Dictionary<DataReaderKey, Dictionary<string, BuilderObject>> readData;
 
-        private List<string> ImportedDataLines;
+        private readonly List<BuilderObject> _builderObjects;
 
-        private List<string> ImportDataColumns;
-
-        public Dictionary<DataReaderKey, Dictionary<string, ImportedObject>> ImportedData;
-        private void readDataFromStream(string filePath)
+        public DataReader(List<BuilderObject> builderObjects)
         {
-
-            if (!File.Exists(filePath)) throw new FileNotFoundException($"File doesn't Exist: {filePath}");
-
-            using (StreamReader streamReader = new StreamReader(filePath))
+            try
+                {
+                    _builderObjects = builderObjects;
+                    agregateDataByKey();
+                }
+            catch (Exception e)
             {
-
-                try
-                {
-                    ImportedDataLines = new List<string>();
-
-                    while (!streamReader.EndOfStream)
-
-                    {
-                        var line = streamReader.ReadLine();
-                        ImportedDataLines.Add(line);
-                    }
-                }
-                catch (IOException ex)
-                {
-                    throw new Exception($"An error occurred while reading the file: {ex.Message}");
-                }
-
-                catch (Exception ex)
-                {
-                    throw new Exception($"An unexpected error occurred: {ex.Message}");
-
-                }
-
-
-            }
-
-        }
-        private string[] splitAndClearLine(string line)
-        {
-            return line.Split(';').Where(c => !string.IsNullOrEmpty(c)).ToArray();
-        }
-        private void readDataColumns()
-        {
-            ImportDataColumns = new List<string>(7);
-
-            var firstLine = ImportedDataLines[0];
-            var columns = splitAndClearLine(firstLine);
-
-            foreach (var column in columns)
-            {
-                ImportDataColumns.Add(column);
-            }
-
-        }
-        private void buildDataObjects()
-        {
-            ImportedObjects = new List<ImportedObject>();
-
-            for (int i = 1; i < ImportedDataLines.Count; i++)
-            {
-                var importedLine = ImportedDataLines[i];
-
-                var rowValues = splitAndClearLine(importedLine);
-
-                if (rowValues.Count() == ImportDataColumns.Count())
-                {
-                    var ImportedObject = new ImportedObject(rowValues);
-                    ImportedObjects.Add(ImportedObject);
-                }
+                throw new Exception(e.Message);
             }
         }
-        private Dictionary<string, ImportedObject> agregateTables()
+
+        private Dictionary<string, BuilderObject> agregateTables()
         {
 
-            var AgregatedTables = new Dictionary<string, ImportedObject>();
+            var AgregatedTables = new Dictionary<string, BuilderObject>();
 
-            foreach (var obj in ImportedObjects)
+            foreach (var obj in _builderObjects)
             {
 
                 var key = $"{obj.ParentType}-{obj.ParentName}";
@@ -109,11 +52,11 @@
             }
             return AgregatedTables;
         }
-        private Dictionary<string, ImportedObject> agregateColumns()
+        private Dictionary<string, BuilderObject> agregateColumns()
         {
-            var AgregatedColumns = new Dictionary<string, ImportedObject>();
+            var AgregatedColumns = new Dictionary<string, BuilderObject>();
 
-            foreach (var obj in ImportedObjects)
+            foreach (var obj in _builderObjects)
             {
 
                 var key = $"{obj.Type}-{obj.Name}";
@@ -127,9 +70,9 @@
             return AgregatedColumns;
 
         }
-        public Dictionary<string, ImportedObject> getDataByKey(DataReaderKey key)
+        public Dictionary<string, BuilderObject> GetDataByKey(DataReaderKey key)
         {
-             var data = ImportedData[key];
+             var data = readData[key];
     
             foreach (var obj in data)
             {
@@ -141,40 +84,25 @@
             }
             return data;           
     }
-        private void initializeState(string filePath)
-        {
-            readDataFromStream(filePath);
-            readDataColumns();
-        }
+
         private void agregateDataByKey()
         {
-            ImportedData = new Dictionary<DataReaderKey, Dictionary<string, ImportedObject>>();
+            readData = new Dictionary<DataReaderKey, Dictionary<string, BuilderObject>>();
 
             var agregatedTables = agregateTables();
             var agregatedColumns = agregateColumns();
 
-            ImportedData[DataReaderKey.TABLES] = agregatedTables;
-            ImportedData[DataReaderKey.COLUMNS] = agregatedColumns;
+            readData[DataReaderKey.TABLES] = agregatedTables;
+            readData[DataReaderKey.COLUMNS] = agregatedColumns;
+
         }
-        private string buildLogsByKey(DataReaderKey key, ImportedObject value)
+        private string buildLogsByKey(DataReaderKey key, BuilderObject value)
         {
                 var tablesMessage = $"\tTable '{value.Schema}.{value.Name}' ({value.NumberOfChildren} columns)";
                 var columsMessage = $"\t\tColumn '{value.Name}' with {value.DataType} data type {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
 
                 return key == DataReaderKey.TABLES ? tablesMessage : columsMessage;
         }
-        public DataReader(string filePath)
-        {
-            try
-                {
-                    initializeState(filePath);
-                    buildDataObjects();
-                    agregateDataByKey();
-                }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
+
     }
 }
