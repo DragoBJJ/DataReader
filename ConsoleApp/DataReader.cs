@@ -5,7 +5,7 @@
     using System.Data.Common;
     using System.IO;
     using System.Linq;
-    using System.Reflection.Emit;
+    using ConsoleApp.Enum;
 
     public class DataReader
     {
@@ -15,10 +15,7 @@
         private List<string> ImportedDataLines;
         private List<string> ImportDataColumns;
 
-        private Dictionary<string, ImportedObject> AgregatedTables;
-        private Dictionary<string, ImportedObject> AgregatedColumns;
-
-
+        public Dictionary<DataReaderKey, Dictionary<string, ImportedObject>> ImportedData;
         private void readDataFromStream(string filePath)
         {
 
@@ -29,7 +26,7 @@
 
                 try
                 {
-                     ImportedDataLines = new List<string>();
+                    ImportedDataLines = new List<string>();
 
                     while (!streamReader.EndOfStream)
 
@@ -49,17 +46,15 @@
 
                 }
 
-     
+
             }
 
         }
-
         private string[] splitAndClearLine(string line)
         {
-            return  line.Split(';').Where(c => !string.IsNullOrEmpty(c)).ToArray();
+            return line.Split(';').Where(c => !string.IsNullOrEmpty(c)).ToArray();
         }
-
-        private void readImportDataColumns()
+        private void readDataColumns()
         {
             ImportDataColumns = new List<string>(7);
 
@@ -68,7 +63,7 @@
 
             foreach (var column in columns)
             {
-                    ImportDataColumns.Add(column);      
+                ImportDataColumns.Add(column);
             }
 
         }
@@ -86,74 +81,105 @@
                 {
                     var ImportedObject = new ImportedObject(rowValues);
                     ImportedObjects.Add(ImportedObject);
-                } 
+                }
             }
         }
-
-        private void agregateTables()
+           private Dictionary<string, ImportedObject> agregateTables()
         {
 
-            AgregatedTables = new Dictionary<string, ImportedObject>();
+            var AgregatedTables = new Dictionary<string, ImportedObject>();
 
             foreach (var obj in ImportedObjects)
             {
 
                 var key = $"{obj.ParentType}-{obj.ParentName}";
-           
 
-                if(AgregatedTables.ContainsKey(key))
+                if (AgregatedTables.ContainsKey(key))
                 {
                     var oldObj = AgregatedTables[key];
                     oldObj.NumberOfChildren++;
 
-                } else
+                }
+                else
                 {
                     obj.NumberOfChildren = 1;
                     AgregatedTables[key] = obj;
-                 
-                }
+
+                }  
             }
+            return AgregatedTables;
         }
-        private void agregateColumns()
+        private Dictionary<string, ImportedObject> agregateColumns()
         {
-            AgregatedColumns = new Dictionary<string, ImportedObject>();
+            var AgregatedColumns = new Dictionary<string, ImportedObject>();
 
             foreach (var obj in ImportedObjects)
             {
 
                 var key = $"{obj.Type}-{obj.Name}";
 
-                if(!AgregatedColumns.ContainsKey(key))
+                if (!AgregatedColumns.ContainsKey(key))
                 {
-                    AgregatedColumns[key] = obj;    
+                    AgregatedColumns[key] = obj;
                 }
             }
 
+            return AgregatedColumns;
+
+        }
+
+        public Dictionary<string, ImportedObject> getDataByKey(DataReaderKey key)
+        {
+             var data = ImportedData[key];
+    
+            foreach (var obj in data)
+            {
+                var value = obj.Value;
+                var dataLogs = buildLogsByKey(key, value);
+
+                Console.WriteLine($"---------------------------------------------------------------------------------------------------------------");
+                Console.WriteLine($"{dataLogs}");
+            }
+            return data;           
+    }
+
+        private void initializeState(string filePath)
+        {
+            readDataFromStream(filePath);
+            readDataColumns();
+        }
+
+        private void agregateDataByKey()
+        {
+            ImportedData = new Dictionary<DataReaderKey, Dictionary<string, ImportedObject>>();
+
+            var agregatedTables = agregateTables();
+            var agregatedColumns = agregateColumns();
+
+            ImportedData[DataReaderKey.TABLES] = agregatedTables;
+            ImportedData[DataReaderKey.COLUMNS] = agregatedColumns;
+        }
+
+        private string buildLogsByKey(DataReaderKey key, ImportedObject value)
+        {
+                var tablesMessage = $"\tTable '{value.Schema}.{value.Name}' ({value.NumberOfChildren} columns)";
+                var columsMessage = $"\t\tColumn '{value.Name}' with {value.DataType} data type {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
+
+                return key == DataReaderKey.TABLES ? tablesMessage : columsMessage;
         }
 
         public DataReader(string filePath)
         {
-            this.readDataFromStream(filePath);
-            this.readImportDataColumns();
-
-            this.buildDataObjects();
-
-            this.agregateTables();
-            this.agregateColumns();
-
-
-            foreach (var obj in AgregatedTables)
+            try
+                {
+                    initializeState(filePath);
+                    buildDataObjects();
+                    agregateDataByKey();
+                }
+            catch (Exception e)
             {
-                var table = obj.Value;
-                Console.WriteLine($"\tTable '{table.Schema}.{table.Name}' ({table.NumberOfChildren} columns)");
+                throw new Exception(e.Message);
             }
-            Console.WriteLine($"---------------------------------------------------------------------------------------------------------------");
-            foreach (var obj in AgregatedColumns)
-            {
-                var column = obj.Value;
-                            Console.WriteLine($"\t\tColumn '{column.Name}' with {column.DataType} data type {(column.IsNullable ? "accepts nulls" : "with no nulls")}");
-                        }
         }
     }
-
 }

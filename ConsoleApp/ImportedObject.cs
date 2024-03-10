@@ -7,7 +7,7 @@ using ConsoleApp.Interface;
 
 namespace ConsoleApp
 {
-    internal class ImportedObject : IDataSchema
+         public class ImportedObject : IDataSchema
     {
         public string Name { get; set; }
         public string Schema { get; set; }
@@ -30,7 +30,7 @@ namespace ConsoleApp
                     ParentName = cleanedValues[3];
                     ParentType = cleanedValues[4].ToUpper();
                     DataType = cleanedValues[5];
-                    IsNullable = cleanedValues[6] == "1" ? true : false;
+                    IsNullable = cleanedValues[6] == "1";
              
                 }
             catch (Exception ex)

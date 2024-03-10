@@ -6,14 +6,14 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
+    using ConsoleApp.Enum;
 
     internal class Program
     {
         static void Main(string[] args)
         {
-            var DATA_URL = "data.csv";
-            var reader = new DataReader(DATA_URL);
-
+            var reader = new DataReader("data.csv");
+            reader.getDataByKey(DataReaderKey.COLUMNS);
         }
     }
 }
