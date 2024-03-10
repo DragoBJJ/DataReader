@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.Common;
     using System.IO;
     using System.Linq;
     using ConsoleApp.Enum;
@@ -13,6 +12,7 @@
         private List<ImportedObject> ImportedObjects;
 
         private List<string> ImportedDataLines;
+
         private List<string> ImportDataColumns;
 
         public Dictionary<DataReaderKey, Dictionary<string, ImportedObject>> ImportedData;
@@ -84,7 +84,7 @@
                 }
             }
         }
-           private Dictionary<string, ImportedObject> agregateTables()
+        private Dictionary<string, ImportedObject> agregateTables()
         {
 
             var AgregatedTables = new Dictionary<string, ImportedObject>();
@@ -127,7 +127,6 @@
             return AgregatedColumns;
 
         }
-
         public Dictionary<string, ImportedObject> getDataByKey(DataReaderKey key)
         {
              var data = ImportedData[key];
@@ -142,13 +141,11 @@
             }
             return data;           
     }
-
         private void initializeState(string filePath)
         {
             readDataFromStream(filePath);
             readDataColumns();
         }
-
         private void agregateDataByKey()
         {
             ImportedData = new Dictionary<DataReaderKey, Dictionary<string, ImportedObject>>();
@@ -159,7 +156,6 @@
             ImportedData[DataReaderKey.TABLES] = agregatedTables;
             ImportedData[DataReaderKey.COLUMNS] = agregatedColumns;
         }
-
         private string buildLogsByKey(DataReaderKey key, ImportedObject value)
         {
                 var tablesMessage = $"\tTable '{value.Schema}.{value.Name}' ({value.NumberOfChildren} columns)";
@@ -167,7 +163,6 @@
 
                 return key == DataReaderKey.TABLES ? tablesMessage : columsMessage;
         }
-
         public DataReader(string filePath)
         {
             try
