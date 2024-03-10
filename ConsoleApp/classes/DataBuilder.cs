@@ -38,7 +38,7 @@ namespace ConsoleApp.classes
 
         private void buildDataObjects()
         {
-            builderObjects = new List<ImportedObject>();
+            builderObjects = new List<BuilderObject>();
 
             for (int i = 1; i < _importedDataLines.Count; i++)
             {
@@ -50,7 +50,7 @@ namespace ConsoleApp.classes
 
                 if (rowValues.Count() == dataHeaders.Count())
                 {
-                    var builderObject = new ImportedObject(rowValues);
+                    var builderObject = new BuilderObject(rowValues);
                     builderObjects.Add(builderObject);
                 }
             }

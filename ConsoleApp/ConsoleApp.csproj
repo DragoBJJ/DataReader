@@ -47,9 +47,9 @@
     <Compile Include="classes\DataBuilder.cs" />
     <Compile Include="classes\DataLoader.cs" />
     <Compile Include="Container\DataContainer.cs" />
-    <Compile Include="DataReader.cs" />
+    <Compile Include="classes\DataReader.cs" />
     <Compile Include="Enum\DataReaderEnum.cs" />
-    <Compile Include="BuilderObject.cs" />
+    <Compile Include="classes\BuilderObject.cs" />
     <Compile Include="Interface\IBuilderData.cs" />
     <Compile Include="Interface\IDataLoader.cs" />
     <Compile Include="Interface\IBuilderSchema.cs" />
