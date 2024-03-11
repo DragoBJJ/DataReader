@@ -50,7 +50,7 @@
     <Compile Include="classes\DataReader.cs" />
     <Compile Include="Enum\DataReaderEnum.cs" />
     <Compile Include="classes\BuilderObject.cs" />
-    <Compile Include="Interface\IBuilderData.cs" />
+    <Compile Include="Interface\IDataBuilder.cs" />
     <Compile Include="Interface\IDataLoader.cs" />
     <Compile Include="Interface\IBuilderSchema.cs" />
     <Compile Include="Interface\IDataReader.cs" />

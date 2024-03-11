@@ -1,24 +1,22 @@
 ﻿namespace ConsoleApp
 {
     using System;
+    using System.Runtime.InteropServices;
     using ConsoleApp.classes;
+    using ConsoleApp.Container;
     using ConsoleApp.Enum;
+
+
 
     internal class Program
     {
         static void Main(string[] args)
         {
-            var loader = new DataLoader("data.csv");
-            var data = loader.GetLoaderData();
 
-            var builder = new DataBuilder(data);
+            var DataContainer = new DataContainer("data.csv");
 
-            var preparedData = builder.GetBuilderData();
-
-            var reader = new DataReader(preparedData);
-
-            reader.GetDataByKey(DataReaderKey.COLUMNS);
-            reader.GetDataByKey(DataReaderKey.TABLES);
+            DataContainer.getDataByKey(DataKey.TABLES);
+            DataContainer.getDataByKey(DataKey.COLUMNS);
         }
     }
 }

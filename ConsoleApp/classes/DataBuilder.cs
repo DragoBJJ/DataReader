@@ -5,7 +5,7 @@ using ConsoleApp.Interface;
 
 namespace ConsoleApp.classes
 {
-    internal class DataBuilder: IBuilderData
+    internal class DataBuilder: IDataBuilder
     {
 
         private List<BuilderObject> builderObjects;
@@ -22,17 +22,9 @@ namespace ConsoleApp.classes
             return line.Split(';').Where(c => !string.IsNullOrEmpty(c)).ToArray();
         }
         private string[] readDataHeaders()
-        {
-            var dataHeaders = new List<string>(7);
-
+        { 
             var firstLine = _importedDataLines[0];
-            var columns = splitAndClearLine(firstLine);
-
-            foreach (var column in columns)
-            {
-                dataHeaders.Add(column);
-            }
-
+            var dataHeaders = splitAndClearLine(firstLine);
             return dataHeaders.ToArray();    
         }
 

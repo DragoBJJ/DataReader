@@ -10,7 +10,7 @@
     public class DataReader: IDataReader
     {
 
-        private Dictionary<DataReaderKey, Dictionary<string, BuilderObject>> readData;
+        private Dictionary<DataKey, Dictionary<string, BuilderObject>> readData;
 
         private readonly List<BuilderObject> _builderObjects;
 
@@ -70,7 +70,7 @@
             return AgregatedColumns;
 
         }
-        public Dictionary<string, BuilderObject> GetDataByKey(DataReaderKey key)
+        public Dictionary<string, BuilderObject> GetDataByKey(DataKey key)
         {
              var data = readData[key];
     
@@ -87,21 +87,21 @@
 
         private void agregateDataByKey()
         {
-            readData = new Dictionary<DataReaderKey, Dictionary<string, BuilderObject>>();
+            readData = new Dictionary<DataKey, Dictionary<string, BuilderObject>>();
 
             var agregatedTables = agregateTables();
             var agregatedColumns = agregateColumns();
 
-            readData[DataReaderKey.TABLES] = agregatedTables;
-            readData[DataReaderKey.COLUMNS] = agregatedColumns;
+            readData[DataKey.TABLES] = agregatedTables;
+            readData[DataKey.COLUMNS] = agregatedColumns;
 
         }
-        private string buildLogsByKey(DataReaderKey key, BuilderObject value)
+        private string buildLogsByKey(DataKey key, BuilderObject value)
         {
                 var tablesMessage = $"\tTable '{value.Schema}.{value.Name}' ({value.NumberOfChildren} columns)";
                 var columsMessage = $"\t\tColumn '{value.Name}' with {value.DataType} data type {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
 
-                return key == DataReaderKey.TABLES ? tablesMessage : columsMessage;
+                return key == DataKey.TABLES ? tablesMessage : columsMessage;
         }
 
     }

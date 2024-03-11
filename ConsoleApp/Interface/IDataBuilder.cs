@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp.Interface
 {
-    internal interface IBuilderData
+    internal interface IDataBuilder
     {
-        List<BuilderObject> GetBuilderData();
+         List<BuilderObject> GetBuilderData();
     }
 }

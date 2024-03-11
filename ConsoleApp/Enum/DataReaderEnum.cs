@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp.Enum
 {
-  public enum DataReaderKey
+  public enum  DataKey
     {
         TABLES,
         COLUMNS,

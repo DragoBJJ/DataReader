@@ -9,6 +9,6 @@ namespace ConsoleApp.Interface
 {
     internal interface IDataReader
     {
-         Dictionary<string, BuilderObject> GetDataByKey(DataReaderKey key);
+         Dictionary<string, BuilderObject> GetDataByKey(DataKey key);
     }
 }
