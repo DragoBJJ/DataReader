@@ -13,16 +13,16 @@ namespace ConsoleApp.Container
     {
         private readonly IDataLoader Loader;
         private readonly IDataBuilder Builder;
-        private  IDataReader Reader;
+        private IDataReader Reader;
         public DataContainer(string filePath)
         {
              Loader = new DataLoader(filePath);
              Builder = new DataBuilder(Loader.GetLoaderData());
+             Reader = new DataReader(Builder.GetBuilderData());
         }
 
         public Dictionary<string,BuilderObject> getDataByKey(DataKey key)
         {
-            Reader = new DataReader(Builder.GetBuilderData());
             return Reader.GetDataByKey(key);    
         }
     }
