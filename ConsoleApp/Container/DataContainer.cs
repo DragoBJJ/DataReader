@@ -13,17 +13,17 @@ namespace ConsoleApp.Container
     {
         private readonly IDataLoader Loader;
         private readonly IDataBuilder Builder;
-        private IDataAggregator Aggreagator;
+        private readonly IDataAggregator Aggregator;
         public DataContainer(string filePath)
         {
              Loader = new DataLoader(filePath);
              Builder = new DataBuilder(Loader.GetLoaderData());
-             Aggreagator = new DataAggregator(Builder.GetBuilderData());
+             Aggregator = new DataAggregator(Builder.GetBuilderData());
         }
 
         public Dictionary<string,BuilderObject> GetDataByKey(DataKey key)
         {
-            return Aggreagator.GetDataByKey(key);    
+            return Aggregator.GetDataByKey(key);    
         }
     }
 }
