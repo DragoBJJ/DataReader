@@ -7,7 +7,7 @@ using ConsoleApp.Enum;
 
 namespace ConsoleApp.Interface
 {
-    internal interface IDataReader
+    internal interface IDataAggregator
     {
          Dictionary<string, BuilderObject> GetDataByKey(DataKey key);
     }

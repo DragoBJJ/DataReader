@@ -47,13 +47,13 @@
     <Compile Include="classes\DataBuilder.cs" />
     <Compile Include="classes\DataLoader.cs" />
     <Compile Include="Container\DataContainer.cs" />
-    <Compile Include="classes\DataReader.cs" />
+    <Compile Include="classes\DataAggregator.cs" />
     <Compile Include="Enum\DataReaderEnum.cs" />
     <Compile Include="classes\BuilderObject.cs" />
     <Compile Include="Interface\IDataBuilder.cs" />
     <Compile Include="Interface\IDataLoader.cs" />
     <Compile Include="Interface\IBuilderSchema.cs" />
-    <Compile Include="Interface\IDataReader.cs" />
+    <Compile Include="Interface\IDataAggregator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
