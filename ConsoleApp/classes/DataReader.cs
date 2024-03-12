@@ -10,16 +10,19 @@
     public class DataReader: IDataReader
     {
 
-        private Dictionary<DataKey, Dictionary<string, BuilderObject>> readData;
+        private Dictionary<DataKey, Dictionary<string, BuilderObject>> dataCollection;
 
         private readonly List<BuilderObject> _builderObjects;
+
+        private Dictionary<string, BuilderObject> AggregatedTables;
+        private Dictionary<string, BuilderObject> AggregatedColumns;
 
         public DataReader(List<BuilderObject> builderObjects)
         {
             try
                 {
                     _builderObjects = builderObjects;
-                    agregateDataByKey();
+                     CollectDataByKey();
                 }
             catch (Exception e)
             {
@@ -27,57 +30,46 @@
             }
         }
 
-        private Dictionary<string, BuilderObject> agregateTables()
+        private void AggregateData()
         {
-
-            var AgregatedTables = new Dictionary<string, BuilderObject>();
+             AggregatedTables = new Dictionary<string, BuilderObject>();
+             AggregatedColumns = new Dictionary<string, BuilderObject>();
 
             foreach (var obj in _builderObjects)
             {
 
-                var key = $"{obj.ParentType}-{obj.ParentName}";
+                var tableKey = $"{obj.ParentType}-{obj.ParentName}";
+                var columnKey = $"{obj.Type}-{obj.Name}";
 
-                if (AgregatedTables.ContainsKey(key))
+                if (AggregatedTables.ContainsKey(tableKey))
                 {
-                    var oldObj = AgregatedTables[key];
+                    var oldObj = AggregatedTables[tableKey];
                     oldObj.NumberOfChildren++;
 
                 }
                 else
                 {
                     obj.NumberOfChildren = 1;
-                    AgregatedTables[key] = obj;
+                    AggregatedTables[tableKey] = obj;
 
-                }  
-            }
-            return AgregatedTables;
-        }
-        private Dictionary<string, BuilderObject> agregateColumns()
-        {
-            var AgregatedColumns = new Dictionary<string, BuilderObject>();
-
-            foreach (var obj in _builderObjects)
-            {
-
-                var key = $"{obj.Type}-{obj.Name}";
-
-                if (!AgregatedColumns.ContainsKey(key))
-                {
-                    AgregatedColumns[key] = obj;
                 }
+
+                if (!AggregatedColumns.ContainsKey(columnKey))
+                {
+                    AggregatedColumns[columnKey] = obj;
+                }
+
             }
-
-            return AgregatedColumns;
-
+       
         }
         public Dictionary<string, BuilderObject> GetDataByKey(DataKey key)
         {
-             var data = readData[key];
+             var data = dataCollection[key];
     
             foreach (var obj in data)
             {
                 var value = obj.Value;
-                var dataLogs = buildLogsByKey(key, value);
+                var dataLogs = BuildLogsByKey(key, value);
 
                 Console.WriteLine($"---------------------------------------------------------------------------------------------------------------");
                 Console.WriteLine($"{dataLogs}");
@@ -85,18 +77,17 @@
             return data;           
     }
 
-        private void agregateDataByKey()
+        private void CollectDataByKey()
         {
-            readData = new Dictionary<DataKey, Dictionary<string, BuilderObject>>();
+            dataCollection = new Dictionary<DataKey, Dictionary<string, BuilderObject>>();
 
-            var agregatedTables = agregateTables();
-            var agregatedColumns = agregateColumns();
+            AggregateData();
 
-            readData[DataKey.TABLES] = agregatedTables;
-            readData[DataKey.COLUMNS] = agregatedColumns;
+            dataCollection[DataKey.TABLES] = AggregatedTables;
+            dataCollection[DataKey.COLUMNS] = AggregatedColumns;
 
         }
-        private string buildLogsByKey(DataKey key, BuilderObject value)
+        private string BuildLogsByKey(DataKey key, BuilderObject value)
         {
                 var tablesMessage = $"\tTable '{value.Schema}.{value.Name}' ({value.NumberOfChildren} columns)";
                 var columsMessage = $"\t\tColumn '{value.Name}' with {value.DataType} data type {(value.IsNullable ? "accepts nulls" : "with no nulls")}";

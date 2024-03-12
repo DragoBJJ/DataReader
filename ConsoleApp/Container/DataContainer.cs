@@ -13,7 +13,7 @@ namespace ConsoleApp.Container
     {
         private readonly IDataLoader Loader;
         private readonly IDataBuilder Builder;
-        private IDataReader Reader;
+        private readonly IDataReader Reader;
         public DataContainer(string filePath)
         {
              Loader = new DataLoader(filePath);
@@ -23,7 +23,8 @@ namespace ConsoleApp.Container
 
         public Dictionary<string,BuilderObject> getDataByKey(DataKey key)
         {
-            return Reader.GetDataByKey(key);    
+            return Reader.GetDataByKey(key);
+             
         }
     }
 }
