@@ -15,8 +15,8 @@
 
             var DataContainer = new DataContainer("data.csv");
 
-            DataContainer.getDataByKey(DataKey.TABLES);
-            DataContainer.getDataByKey(DataKey.COLUMNS);
+            DataContainer.GetDataByKey(DataKey.TABLES);
+            DataContainer.GetDataByKey(DataKey.COLUMNS);
         }
     }
 }

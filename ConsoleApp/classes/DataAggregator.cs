@@ -30,6 +30,35 @@
             }
         }
 
+
+        private void SaveTableByKey(Dictionary<string, BuilderObject> AggregatedTables, BuilderObject obj)
+        {
+            var tableKey = $"{obj.ParentType}-{obj.ParentName}";
+
+            if (AggregatedTables.ContainsKey(tableKey))
+            {
+                var oldObj = AggregatedTables[tableKey];
+                oldObj.NumberOfChildren++;
+
+            }
+            else
+            {
+                obj.NumberOfChildren = 1;
+                AggregatedTables[tableKey] = obj;
+
+            }
+        }
+
+        private void SaveColumnByKey(Dictionary<string, BuilderObject> AggregatedColumns, BuilderObject obj)
+        {
+
+            var columnKey = $"{obj.Type}-{obj.Name}";
+
+            if (!AggregatedColumns.ContainsKey(columnKey))
+            {
+                AggregatedColumns[columnKey] = obj;
+            }
+        }
         private void AggregateData()
         {
              AggregatedTables = new Dictionary<string, BuilderObject>();
@@ -37,29 +66,11 @@
 
             foreach (var obj in _builderObjects)
             {
-
-                var tableKey = $"{obj.ParentType}-{obj.ParentName}";
-                var columnKey = $"{obj.Type}-{obj.Name}";
-
-                if (AggregatedTables.ContainsKey(tableKey))
-                {
-                    var oldObj = AggregatedTables[tableKey];
-                    oldObj.NumberOfChildren++;
-
-                }
-                else
-                {
-                    obj.NumberOfChildren = 1;
-                    AggregatedTables[tableKey] = obj;
-
-                }
-
-                if (!AggregatedColumns.ContainsKey(columnKey))
-                {
-                    AggregatedColumns[columnKey] = obj;
-                }
+                SaveTableByKey(AggregatedTables, obj);
+                SaveColumnByKey(AggregatedColumns, obj);
             }
         }
+
         public Dictionary<string, BuilderObject> GetDataByKey(DataKey key)
         {
              var data = collectionData[key];
@@ -88,9 +99,9 @@
         private string BuildLogsByKey(DataKey key, BuilderObject value)
         {
                 var tablesMessage = $"\tTable '{value.Schema}.{value.Name}' ({value.NumberOfChildren} columns)";
-                var columsMessage = $"\t\tColumn '{value.Name}' with {value.DataType} data type {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
+                var columnsMessage = $"\t\tColumn '{value.Name}' with {value.DataType} data type {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
 
-                return key == DataKey.TABLES ? tablesMessage : columsMessage;
+                return key == DataKey.TABLES ? tablesMessage : columnsMessage;
         }
 
     }
