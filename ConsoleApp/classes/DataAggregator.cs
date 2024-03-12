@@ -31,9 +31,24 @@
         }
 
 
+        private void SaveColumnByKey(Dictionary<string, BuilderObject> AggregatedColumns, BuilderObject obj)
+        {
+
+            var tableKey = $"{obj.Type}-{obj.Name}";
+            var isColumn = obj.Type == "COLUMN";
+
+            if (isColumn & !AggregatedColumns.ContainsKey(tableKey))
+            {
+                AggregatedColumns[tableKey] = obj;
+            }        
+        }
+
         private void SaveTableByKey(Dictionary<string, BuilderObject> AggregatedTables, BuilderObject obj)
         {
             var tableKey = $"{obj.ParentType}-{obj.ParentName}";
+            var isTable = obj.Type == "TABLE";
+
+            if (!isTable) return;
 
             if (AggregatedTables.ContainsKey(tableKey))
             {
@@ -47,28 +62,21 @@
                 AggregatedTables[tableKey] = obj;
 
             }
-        }
 
-        private void SaveColumnByKey(Dictionary<string, BuilderObject> AggregatedColumns, BuilderObject obj)
-        {
-
-            var columnKey = $"{obj.Type}-{obj.Name}";
-
-            if (!AggregatedColumns.ContainsKey(columnKey))
-            {
-                AggregatedColumns[columnKey] = obj;
-            }
         }
         private void AggregateData()
         {
              AggregatedTables = new Dictionary<string, BuilderObject>();
              AggregatedColumns = new Dictionary<string, BuilderObject>();
 
+
             foreach (var obj in _builderObjects)
-            {
+            {                   
                 SaveTableByKey(AggregatedTables, obj);
                 SaveColumnByKey(AggregatedColumns, obj);
             }
+
+            Console.WriteLine($"Columns Length: {AggregatedColumns.Count()}");
         }
 
         public Dictionary<string, BuilderObject> GetDataByKey(DataKey key)
@@ -98,8 +106,8 @@
         }
         private string BuildLogsByKey(DataKey key, BuilderObject value)
         {
-                var tablesMessage = $"\tTable '{value.Schema}.{value.Name}' ({value.NumberOfChildren} columns)";
-                var columnsMessage = $"\t\tColumn '{value.Name}' with {value.DataType} data type {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
+                var tablesMessage = $"\t Type {value.Type} {value.Schema}.{value.Name}' ({value.NumberOfChildren} columns)";
+                var columnsMessage = $"\t Type {value.Type} {value.Name} children: {value.NumberOfChildren}' with {value.DataType} data type {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
 
                 return key == DataKey.TABLES ? tablesMessage : columnsMessage;
         }

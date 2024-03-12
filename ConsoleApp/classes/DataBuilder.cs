@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConsoleApp.Interface;
@@ -40,8 +41,10 @@ namespace ConsoleApp.classes
 
                 var dataHeaders = readDataHeaders();
 
-                if (rowValues.Count() == dataHeaders.Count())
-                {
+                var rowLength = rowValues.Count();
+
+                if (rowLength >= 2 & rowLength <= dataHeaders.Length)
+                {           
                     var builderObject = new BuilderObject(rowValues);
                     builderObjects.Add(builderObject);
                 }

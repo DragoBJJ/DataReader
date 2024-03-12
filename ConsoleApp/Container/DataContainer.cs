@@ -17,8 +17,10 @@ namespace ConsoleApp.Container
         public DataContainer(string filePath)
         {
              Loader = new DataLoader(filePath);
-             Builder = new DataBuilder(Loader.GetLoaderData());
-             Aggregator = new DataAggregator(Builder.GetBuilderData());
+
+            Builder = new DataBuilder(Loader.GetLoaderData());
+           
+            Aggregator = new DataAggregator(Builder.GetBuilderData());
         }
 
         public Dictionary<string,BuilderObject> GetDataByKey(DataKey key)

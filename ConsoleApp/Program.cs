@@ -1,8 +1,5 @@
 ﻿namespace ConsoleApp
 {
-    using System;
-    using System.Runtime.InteropServices;
-    using ConsoleApp.classes;
     using ConsoleApp.Container;
     using ConsoleApp.Enum;
 
@@ -16,7 +13,7 @@
             var DataContainer = new DataContainer("data.csv");
 
             DataContainer.GetDataByKey(DataKey.TABLES);
-            DataContainer.GetDataByKey(DataKey.COLUMNS);
+
         }
     }
 }
