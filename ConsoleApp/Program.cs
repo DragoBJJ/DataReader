@@ -15,11 +15,8 @@
 
             var DataContainer = new DataContainer("data.csv");
 
-            var tables = DataContainer.getDataByKey(DataKey.TABLES);
-            var columns = DataContainer.getDataByKey(DataKey.COLUMNS);
-
-            Console.WriteLine($"Amount of {DataKey.TABLES.ToString()} Data: {tables.Count}");
-            Console.WriteLine($"Amount of {DataKey.COLUMNS.ToString()} Data: {columns.Count}");
+            DataContainer.getDataByKey(DataKey.TABLES);
+            DataContainer.getDataByKey(DataKey.COLUMNS);
         }
     }
 }
