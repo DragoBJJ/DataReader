@@ -9,6 +9,8 @@ namespace ConsoleApp.Interface
 {
     internal interface IDataAggregator
     {
-         void GetDataByKey();
+         void GetAllCollectedData();
+
+        void GetAllDatabases();
     }
 }

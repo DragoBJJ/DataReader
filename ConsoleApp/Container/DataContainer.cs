@@ -19,13 +19,18 @@ namespace ConsoleApp.Container
              Loader = new DataLoader(filePath);
 
             Builder = new DataBuilder(Loader.GetLoaderData());
-           
+          
             Aggregator = new DataAggregator(Builder.GetBuilderData());
         }
 
-        public void GetDataByKey()
+        public void GetAllCollectedData()
         {
-             Aggregator.GetDataByKey();    
+             Aggregator.GetAllCollectedData();    
+        }
+
+        public void GetAllDataBases()
+        {
+            Aggregator.GetAllDatabases();
         }
     }
 }

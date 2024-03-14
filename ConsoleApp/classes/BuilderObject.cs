@@ -22,20 +22,24 @@ namespace ConsoleApp
         {
             try
                 {
-                    var cleanedValues = values.Select(cleanString).ToArray();
+                        var cleanedValues = values.Select(cleanString).ToArray();
 
                         Type = cleanedValues[0].ToUpper();
                         Name = cleanedValues[1];
+                     
+                    if(cleanedValues.Length > 2 )
+                    {
                         Schema = cleanedValues[2];
                         ParentName = cleanedValues[3];
                         ParentType = cleanedValues[4].ToUpper();
                         DataType = cleanedValues[5];
-
-
-                if (cleanedValues.Length == 7)
-                    {
-                        IsNullable = cleanedValues[6] == "1";
                     }
+
+
+                    if (cleanedValues.Length == 7)
+                        {
+                            IsNullable = cleanedValues[6] == "1";
+                        }
              
                 }
             catch (Exception ex)

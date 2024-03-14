@@ -11,8 +11,8 @@
         {
 
             var DataContainer = new DataContainer("data.csv");
-
-            DataContainer.GetDataByKey();
+            DataContainer.GetAllCollectedData();
+            DataContainer.GetAllDataBases();
 
         }
     }
