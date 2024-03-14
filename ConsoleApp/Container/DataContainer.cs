@@ -23,9 +23,9 @@ namespace ConsoleApp.Container
             Aggregator = new DataAggregator(Builder.GetBuilderData());
         }
 
-        public Dictionary<string,BuilderObject> GetDataByKey(DataKey key)
+        public void GetDataByKey()
         {
-            return Aggregator.GetDataByKey(key);    
+             Aggregator.GetDataByKey();    
         }
     }
 }

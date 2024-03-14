@@ -12,7 +12,7 @@
 
             var DataContainer = new DataContainer("data.csv");
 
-            DataContainer.GetDataByKey(DataKey.TABLES);
+            DataContainer.GetDataByKey();
 
         }
     }

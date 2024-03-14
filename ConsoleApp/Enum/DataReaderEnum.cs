@@ -8,6 +8,7 @@ namespace ConsoleApp.Enum
 {
   public enum  DataKey
     {
+        DATABASE,
         TABLES,
         COLUMNS,
     }

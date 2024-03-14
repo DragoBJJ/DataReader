@@ -43,8 +43,9 @@ namespace ConsoleApp.classes
 
                 var rowLength = rowValues.Count();
 
-                if (rowLength >= 2 & rowLength <= dataHeaders.Length)
-                {           
+        
+                if (rowLength == 6 || rowLength == dataHeaders.Length)
+                {
                     var builderObject = new BuilderObject(rowValues);
                     builderObjects.Add(builderObject);
                 }

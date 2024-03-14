@@ -10,9 +10,10 @@
     public class DataAggregator: IDataAggregator
     {
 
-        private Dictionary<DataKey, Dictionary<string, BuilderObject>> collectionData;
+        private Dictionary<DataKey, BuilderObject> collectionData;
+        private Dictionary<string, Dictionary<string, BuilderObject>> ParentData;
 
-        private  Dictionary<string, BuilderObject> AggregatedTables;
+        private  Dictionary<string, int> AggregatedTables;
         private  Dictionary<string, BuilderObject> AggregatedColumns;
 
         private readonly List<BuilderObject> _builderObjects;
@@ -22,7 +23,7 @@
             try
             {
                 _builderObjects = builderObjects;
-                CollectionData();
+                AggregateData();
             }
             catch (Exception e)
             {
@@ -31,86 +32,91 @@
         }
 
 
-        private void SaveColumnByKey(Dictionary<string, BuilderObject> AggregatedColumns, BuilderObject obj)
+  
+        private void SaveTableByKey(BuilderObject obj)
         {
+            var parentKey = $"{obj.ParentType}-{obj.ParentName}";
+            var childKey = $"${obj.Type}-{obj.Name}";
 
-            var tableKey = $"{obj.Type}-{obj.Name}";
-            var isColumn = obj.Type == "COLUMN";
 
-            if (isColumn & !AggregatedColumns.ContainsKey(tableKey))
+
+            if (AggregatedTables.ContainsKey(parentKey))
             {
-                AggregatedColumns[tableKey] = obj;
-            }        
-        }
-
-        private void SaveTableByKey(Dictionary<string, BuilderObject> AggregatedTables, BuilderObject obj)
-        {
-            var tableKey = $"{obj.ParentType}-{obj.ParentName}";
-            var isTable = obj.Type == "TABLE";
-
-            if (!isTable) return;
-
-            if (AggregatedTables.ContainsKey(tableKey))
-            {
-                var oldObj = AggregatedTables[tableKey];
-                oldObj.NumberOfChildren++;
+                AggregatedTables[parentKey] = AggregatedTables[parentKey] + 1;
 
             }
             else
             {
-                obj.NumberOfChildren = 1;
-                AggregatedTables[tableKey] = obj;
-
+                AggregatedTables[parentKey] = 1;
             }
 
+
+            if (ParentData.ContainsKey(parentKey))
+            {
+                var oldChildren = ParentData[parentKey];
+                oldChildren[childKey] = obj;
+                
+            } else
+            {
+                var children = new Dictionary<string, BuilderObject>();
+                children[childKey] = obj;
+                ParentData[parentKey] = children;
+            }
+        }
+
+        private void showAllDataBaseTable()
+        {
+            /*        var databaseKey = "DATABASE-BaseballData";
+                    var children = parentData[databaseKey];
+
+        */
+    
+            foreach (var parent in ParentData)
+            {
+                    var parentKey = parent.Key;
+                    var children = parent.Value;
+
+                Console.WriteLine($"-------------------------------------------------------------------");
+                Console.WriteLine($"Parent: {parentKey}: Number of Child: {children.Count()}");
+                foreach (var child in children.Values)
+                {
+                    Console.WriteLine($"Child: {child.Type}-{child.Name}");
+                }
+            }
         }
         private void AggregateData()
         {
-             AggregatedTables = new Dictionary<string, BuilderObject>();
-             AggregatedColumns = new Dictionary<string, BuilderObject>();
+             AggregatedTables = new Dictionary<string, int>();
+            AggregatedColumns = new Dictionary<string, BuilderObject>();
+            ParentData = new Dictionary<string, Dictionary<string, BuilderObject>>();
+
 
 
             foreach (var obj in _builderObjects)
-            {                   
-                SaveTableByKey(AggregatedTables, obj);
-                SaveColumnByKey(AggregatedColumns, obj);
-            }
-
-            Console.WriteLine($"Columns Length: {AggregatedColumns.Count()}");
-        }
-
-        public Dictionary<string, BuilderObject> GetDataByKey(DataKey key)
-        {
-             var data = collectionData[key];
-    
-            foreach (var obj in data)
             {
-                var value = obj.Value;
-                var dataLogs = BuildLogsByKey(key, value);
-
-                Console.WriteLine($"---------------------------------------------------------------------------------------------------------------");
-                Console.WriteLine($"{dataLogs}");
-            }
-            return data;           
-    }
-
-        private void CollectionData()
-        {
-            collectionData = new Dictionary<DataKey, Dictionary<string, BuilderObject>>();
-
-            AggregateData();
-
-            collectionData[DataKey.TABLES] = AggregatedTables;
-            collectionData[DataKey.COLUMNS] = AggregatedColumns;
-
+                 SaveTableByKey(obj);                            
+            }       
         }
+                   
         private string BuildLogsByKey(DataKey key, BuilderObject value)
         {
-                var tablesMessage = $"\t Type {value.Type} {value.Schema}.{value.Name}' ({value.NumberOfChildren} columns)";
-                var columnsMessage = $"\t Type {value.Type} {value.Name} children: {value.NumberOfChildren}' with {value.DataType} data type {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
+                var tablesMessage = $"\t Type {value.Type}, Schema: {value.Schema}.{value.Name}' ({value.NumberOfChildren} Children)";
+                var columnsMessage = $"\t Type {value.Type}, Name: {value.Name}, with data type: {value.DataType}, {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
 
                 return key == DataKey.TABLES ? tablesMessage : columnsMessage;
         }
 
-    }
+        public void GetDataByKey()
+        {
+           /* foreach (var parent in AggregatedTables)
+            {
+                var childNumber = parent.Value;
+                Console.WriteLine($"key:{parent.Key} {childNumber}");
+
+            }*/
+
+            showAllDataBaseTable();
+
+            }
+        }
 }

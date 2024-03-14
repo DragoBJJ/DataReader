@@ -9,6 +9,6 @@ namespace ConsoleApp.Interface
 {
     internal interface IDataAggregator
     {
-         Dictionary<string, BuilderObject> GetDataByKey(DataKey key);
+         void GetDataByKey();
     }
 }
