@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace ConsoleApp.Interface
 {
     internal interface IDataBuilder
     {
-         List<BuilderObject> GetBuilderData();
+         abstract List<IChildrenSchema> GetChildrenData();
+        abstract List<IDataBaseSchema> GetDataBases();
     }
 }

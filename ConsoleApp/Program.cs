@@ -11,8 +11,9 @@
         {
 
             var DataContainer = new DataContainer("data.csv");
-            DataContainer.GetAllCollectedData();
-            DataContainer.GetAllDataBases();
+
+            DataContainer.GetAllChildrenData();
+            DataContainer.GetDataBases();
 
         }
     }

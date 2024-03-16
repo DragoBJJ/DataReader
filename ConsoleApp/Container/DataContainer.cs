@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ConsoleApp.classes;
-using ConsoleApp.Enum;
+﻿using ConsoleApp.classes;
 using ConsoleApp.Interface;
 
 namespace ConsoleApp.Container
@@ -18,19 +12,19 @@ namespace ConsoleApp.Container
         {
              Loader = new DataLoader(filePath);
 
-            Builder = new DataBuilder(Loader.GetLoaderData());
+             Builder = new DataBuilder(Loader.GetLoaderData());
           
-            Aggregator = new DataAggregator(Builder.GetBuilderData());
+            Aggregator = new DataAggregator(Builder.GetChildrenData());
         }
 
-        public void GetAllCollectedData()
+        public void GetAllChildrenData()
         {
-             Aggregator.GetAllCollectedData();    
+             Aggregator.GetAllChildrenData();    
         }
 
-        public void GetAllDataBases()
+        public void GetDataBases()
         {
-            Aggregator.GetAllDatabases();
+            Builder.GetDataBases();
         }
     }
 }

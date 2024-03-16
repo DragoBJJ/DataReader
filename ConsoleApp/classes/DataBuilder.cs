@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using ConsoleApp.Interface;
@@ -9,51 +8,61 @@ namespace ConsoleApp.classes
     internal class DataBuilder: IDataBuilder
     {
 
-        private List<BuilderObject> builderObjects;
+        private List<IChildrenSchema> children;
+        private List<IDataBaseSchema> dataBases;
+
         private readonly List<string> _importedDataLines;
 
+        private readonly Factory factory;
         public DataBuilder(List<string> ImportedDataLines) {
 
             _importedDataLines = ImportedDataLines;
-            buildDataObjects();
+            BuildDataObjects();
         }
 
         private string[] splitAndClearLine(string line)
         {
             return line.Split(';').Where(c => !string.IsNullOrEmpty(c)).ToArray();
         }
-        private string[] readDataHeaders()
-        { 
-            var firstLine = _importedDataLines[0];
-            var dataHeaders = splitAndClearLine(firstLine);
-            return dataHeaders.ToArray();    
-        }
 
-        private void buildDataObjects()
+        private (string rowType, string[] rowValues) GetRawValues(int i)
         {
-            builderObjects = new List<BuilderObject>();
+            var importedLine = _importedDataLines[i];
+
+            var rowValues = splitAndClearLine(importedLine);
+            var rowType = rowValues.Length >= 1 ? rowValues[0].ToUpper() : "";
+
+            return (rowType, rowValues);
+        }
+        private void BuildDataObjects()
+        {
+            children = new List<IChildrenSchema>();
+            dataBases = new List<IDataBaseSchema>();
 
             for (int i = 1; i < _importedDataLines.Count; i++)
             {
-                var importedLine = _importedDataLines[i];
+                
+                var (rowType, rowValues) = GetRawValues(i);
 
-                var rowValues = splitAndClearLine(importedLine);
-
-                var dataHeaders = readDataHeaders();
-
-                var rowLength = rowValues.Count();
-
-                if (rowLength == 2 || rowLength == 6 || rowLength == dataHeaders.Length)
-                {
-                    var builderObject = new BuilderObject(rowValues);
-                    builderObjects.Add(builderObject);
-                }
+                if (rowType == "DATABASE")
+                    {
+                        dataBases.Add(new DataBase(rowValues));
+                    }
+                else
+                    {                  
+                            var child = factory.CreateDataStructure(rowType, rowValues);
+                            if (child is IChildrenSchema) children.Add(child);                    
+                    }               
             }
         }
 
-        public List<BuilderObject> GetBuilderData()
+        public List<IChildrenSchema> GetChildrenData()
         {
-            return builderObjects;
+            return children;
+        }
+        public List<IDataBaseSchema> GetDataBases()
+        {
+                return dataBases;
         }
     }
 }

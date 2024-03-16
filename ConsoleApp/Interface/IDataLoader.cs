@@ -8,7 +8,6 @@ namespace ConsoleApp.Interface
 {
      internal interface IDataLoader
     {
-
-        List<string> GetLoaderData();      
+        abstract List<string> GetLoaderData();      
     }
 }

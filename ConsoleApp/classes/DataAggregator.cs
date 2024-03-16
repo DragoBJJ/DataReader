@@ -6,18 +6,17 @@
     using System.Linq;
     using ConsoleApp.Interface;
 
-    public class DataAggregator: IDataAggregator
+    internal class DataAggregator : IDataAggregator
     {
 
-        private Dictionary<string, Dictionary<string, BuilderObject>> ParentData;
-        private Dictionary<string, BuilderObject> Databases;
-        private readonly List<BuilderObject> _builderObjects;
+        private Dictionary<string, Dictionary<string, IChildrenSchema>> ParentData;
+        private readonly List<IChildrenSchema> builderObjects;
 
-        public DataAggregator(List<BuilderObject> builderObjects)
+        internal DataAggregator(List<IChildrenSchema> children)
         {
             try
             {
-                _builderObjects = builderObjects;
+                builderObjects = children;
                 AggregateData();
             }
             catch (Exception e)
@@ -25,30 +24,21 @@
                 throw new Exception(e.Message);
             }
         }
-
-        private void AggregateDatabases(BuilderObject obj)
-        {      
-                if (!Databases.ContainsKey(obj.Name))
-                {
-
-                    Databases[obj.Name] = obj;
-                }
-        }
-        private void AggregateDataByKey(BuilderObject obj)
+        private void AggregateDataByKey(IChildrenSchema obj)
         {
 
             var parentKey = $"{obj.ParentType}-{obj.ParentName}";
-            var childKey = $"${obj.Type}-{obj.Name}";
- 
+            var childKey = $"{obj.Type}-{obj.Name}";
+
             if (ParentData.ContainsKey(parentKey))
             {
                 var oldChildren = ParentData[parentKey];
                 oldChildren[childKey] = obj;
-                
+
             } else
 
             {
-                var children = new Dictionary<string, BuilderObject>
+                var children = new Dictionary<string, IChildrenSchema>
                 {
                     [childKey] = obj
                 };
@@ -58,7 +48,7 @@
         }
 
 
-        private void ShowChildren(Dictionary<string,BuilderObject> children)
+        private void ShowChildren(Dictionary<string, IChildrenSchema> children)
         {
             foreach (var child in children.Values)
             {
@@ -67,7 +57,7 @@
             }
         }
 
-        private void ShowParent(KeyValuePair<string, Dictionary<string,BuilderObject>> parent)
+        private void ShowParent(KeyValuePair<string, Dictionary<string, IChildrenSchema>> parent)
         {
             var parentKey = parent.Key;
             var children = parent.Value;
@@ -75,50 +65,32 @@
             Console.WriteLine($"-------------------------------------------------------------------");
             Console.WriteLine($"ParentType: {parentKeyValues[0]}, ParentName: {parentKeyValues[1]}, number of children: {children.Count()}");
 
-            ShowChildren(children);
+                ShowChildren(children);
         }
-        public void GetAllCollectedData()
+        public void GetAllChildrenData()
         {
             foreach (var parent in ParentData)
             {
-                ShowParent(parent); 
+                ShowParent(parent);
             }
         }
-     
+
         private void AggregateData()
         {
-            ParentData = new Dictionary<string, Dictionary<string, BuilderObject>>();
-            Databases = new Dictionary<string, BuilderObject>();
+            ParentData = new Dictionary<string, Dictionary<string, IChildrenSchema>>();
 
-            foreach (var obj in _builderObjects)
-            {   
-                    if (obj.ParentType is string & obj.ParentName is string)
-                {
-                        AggregateDataByKey(obj);
-                }
-                else
-
-                {
-                        AggregateDatabases(obj);                     
-                }
-            }       
-        }
-                   
-        private string BuildLogsByKey(string key, BuilderObject value)
-        {
-                var tablesMessage = $"\t Type {value.Type}, Schema: {value.Schema}.{value.Name}";
-                var columnsMessage = $"\t Type {value.Type}, Name: {value.Name}, with data type: {value.DataType}, {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
-               return key == "COLUMN" ? columnsMessage : tablesMessage;
-        }
-
-        public void GetAllDatabases()
-        {
-            foreach (var database in Databases)
+            foreach (var obj in builderObjects)
             {
-                Console.WriteLine($"-------------------------------------------------------------------");
-                Console.WriteLine($"Database Name: {database.Key}");
+               
+                    AggregateDataByKey(obj);
+                      
             }
         }
+        private string BuildLogsByKey(string key, IChildrenSchema value)
+        {
+            var tablesMessage = $"\t Type {value.Type}, Schema: {value.Schema}.{value.Name}";
+            var columnsMessage = $"\t Type {value.Type}, Name: {value.Name}, with data type: {value.DataType}, {(value.IsNullable ? "accepts nulls" : "with no nulls")}";
+            return key == "COLUMN" ? columnsMessage : tablesMessage;
+        }
     }
-
 }

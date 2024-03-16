@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ConsoleApp.Enum;
 
 namespace ConsoleApp.Interface
 {
-    internal interface IDataAggregator
+    internal interface IDataBaseSchema: IBaseSchema
     {
-       abstract void GetAllChildrenData();
+       public int NumberOfChildren { get; set; }    
     }
 }

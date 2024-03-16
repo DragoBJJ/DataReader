@@ -44,16 +44,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="classes\Column.cs" />
+    <Compile Include="classes\DataBase.cs" />
     <Compile Include="classes\DataBuilder.cs" />
     <Compile Include="classes\DataLoader.cs" />
+    <Compile Include="classes\Table.cs" />
     <Compile Include="Container\DataContainer.cs" />
     <Compile Include="classes\DataAggregator.cs" />
     <Compile Include="Enum\DataReaderEnum.cs" />
-    <Compile Include="classes\BuilderObject.cs" />
+    <Compile Include="classes\Factory.cs" />
+    <Compile Include="Interface\IDataBaseSchema.cs" />
     <Compile Include="Interface\IDataBuilder.cs" />
     <Compile Include="Interface\IDataLoader.cs" />
-    <Compile Include="Interface\IBuilderSchema.cs" />
+    <Compile Include="Interface\IBaseSchema.cs" />
     <Compile Include="Interface\IDataAggregator.cs" />
+    <Compile Include="Interface\IChildrenSchema.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
