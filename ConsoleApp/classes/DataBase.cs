@@ -18,12 +18,12 @@ namespace ConsoleApp.classes
          public DataBase(string[] values)
         {
             try
-            {
-                var cleanedValues = values.Select(CleanString).ToArray();
+                {
+                    var cleanedValues = values.Select(CleanString).ToArray();
 
-                Type = cleanedValues[0].ToUpper();
-                Name = cleanedValues[1];
-            }
+                    Type = cleanedValues[0].ToUpper();
+                    Name = cleanedValues[1];
+                }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);

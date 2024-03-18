@@ -9,6 +9,8 @@ namespace ConsoleApp.Interface
 {
     internal interface IDataAggregator
     {
-       abstract void GetAllChildrenData();
+        void GetAllChildrenData();
+
+        void GetChildrenByKey(string parentKey, string parentName);
     }
 }

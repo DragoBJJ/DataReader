@@ -12,8 +12,9 @@
 
             var DataContainer = new DataContainer("data.csv");
 
-            DataContainer.GetAllChildrenData();
-            DataContainer.GetDataBases();
+            DataContainer.GetAllChildren();
+            DataContainer.GetAllDataBases();
+            DataContainer.GetChildrenByKey("TABLE", "SalesPerson");
 
         }
     }

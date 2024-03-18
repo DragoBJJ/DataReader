@@ -2,21 +2,19 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using ConsoleApp.Interface;
-
     internal class DataAggregator : IDataAggregator
     {
-
-        private Dictionary<string, Dictionary<string, IChildrenSchema>> ParentData;
+        private readonly Dictionary<string, Dictionary<string, IChildrenSchema>> ParentData;
         private readonly List<IChildrenSchema> builderObjects;
-
         internal DataAggregator(List<IChildrenSchema> children)
         {
             try
             {
+                ParentData = new Dictionary<string, Dictionary<string, IChildrenSchema>>();
                 builderObjects = children;
+
                 AggregateData();
             }
             catch (Exception e)
@@ -27,8 +25,8 @@
         private void AggregateDataByKey(IChildrenSchema obj)
         {
 
-            var parentKey = $"{obj.ParentType}-{obj.ParentName}";
-            var childKey = $"{obj.Type}-{obj.Name}";
+                var parentKey = $"{obj.ParentType}-{obj.ParentName}";
+                var childKey = $"{obj.Type}-{obj.Name}";
 
             if (ParentData.ContainsKey(parentKey))
             {
@@ -46,8 +44,6 @@
                 ParentData[parentKey] = children;
             }
         }
-
-
         private void ShowChildren(Dictionary<string, IChildrenSchema> children)
         {
             foreach (var child in children.Values)
@@ -56,34 +52,42 @@
                 Console.WriteLine($"{message}");
             }
         }
+        private void ShowParentMessage(string parentType, string parentName, int childrenCount)
+        {
+            Console.WriteLine($"-------------------------------------------------------------------");
+            Console.WriteLine($"ParentType: {parentType}, ParentName: {parentName}, number of children: {childrenCount}");
+        }
 
-        private void ShowParent(KeyValuePair<string, Dictionary<string, IChildrenSchema>> parent)
+        private void DisplayAllData(KeyValuePair<string, Dictionary<string, IChildrenSchema>> parent)
         {
             var parentKey = parent.Key;
             var children = parent.Value;
-            var parentKeyValues = parentKey.Split('-');
-            Console.WriteLine($"-------------------------------------------------------------------");
-            Console.WriteLine($"ParentType: {parentKeyValues[0]}, ParentName: {parentKeyValues[1]}, number of children: {children.Count()}");
+            var key = parentKey.Split('-');
 
-                ShowChildren(children);
+            ShowParentMessage(key[0], key[1], children.Count());
+            ShowChildren(children);
         }
         public void GetAllChildrenData()
         {
             foreach (var parent in ParentData)
             {
-                ShowParent(parent);
+                        DisplayAllData(parent);
             }
         }
 
+        public void GetChildrenByKey(string parentKey, string parentName)
+        {
+                var key =  $"{parentKey}-{parentName}";
+                var children = ParentData[key];
+                ShowParentMessage(parentKey, parentName, children.Count());
+                ShowChildren(children);
+        }    
         private void AggregateData()
         {
-            ParentData = new Dictionary<string, Dictionary<string, IChildrenSchema>>();
 
             foreach (var obj in builderObjects)
-            {
-               
-                    AggregateDataByKey(obj);
-                      
+            {              
+                    AggregateDataByKey(obj);                      
             }
         }
         private string BuildLogsByKey(string key, IChildrenSchema value)
